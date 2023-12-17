@@ -36,12 +36,12 @@ class Cliente
     public function alquilar(Soporte $s)
     {
         if ($s->alquilado) {
-            echo "El soporte ya está alquilado</br>";
+            throw new SoporteYaAlquiladoException("El soporte ya está alquilado.</br>");
             return false;
         }
 
         if ($this->numSoportesAlquilados >= $this->maxAlquilerConcurrente) {
-            echo "Ha superado el cupo de alquileres</br>";
+            throw new CupoSuperadoException("Ha superado el cupo de alquileres.</br>");
             return $this;
         }
 
@@ -81,13 +81,13 @@ class Cliente
                     $soporte->alquilado = false;
                     return true;
                 } else {
-                    echo "El soporte no está alquilado</br>";
+                    throw new SoporteNoEncontradoException("El soporte no está alquilado.</br>");
                     return false;
                 }
             }
         }
     
-        echo "El soporte no se encontró en los alquileres del cliente</br>";
+        throw new SoporteNoEncontradoException("El soporte no se encontró en los alquileres del cliente.</br>");
         return false;
     }
     

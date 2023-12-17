@@ -87,7 +87,15 @@ class Videoclub
         }
 
         if ($socioAlquilar && $productoAlquilar) {
-            $socioAlquilar->alquilar($productoAlquilar);
+            try {
+                $socioAlquilar->alquilar($productoAlquilar);
+                $this->numTotalAlquileres++;
+                $this->numProductosAlquilados++;
+            } catch (SoporteYaAlquiladoException $e) {
+                echo "Error: " . $e->getMessage();
+            } catch (CupoSuperadoException $e) {
+                echo "Error: " . $e->getMessage();
+            }
         }
         return $this;
     }
@@ -101,19 +109,25 @@ class Videoclub
                 if ($productoVideoclub->getNumero() == $productoAlquilar) {
                     if ($productoVideoclub->alquilado == true) {
                         $alquilado = true;
-                        echo "Alquilado";
+                        throw new SoporteYaAlquiladoException("El soporte $productoAlquilar ya está alquilado.</br>");
                     }
                 }
             }
         }
 
         if ($alquilado == false && $arrayCorrecta == true) {
-            foreach($numerosProductos as $productoAlquilar) {
-                $this->alquilarSocioProducto($numSocio, $productoAlquilar);
-                echo "<p>Se ha alquilado exitosamente.</p>";
+            try {
+                foreach($numerosProductos as $productoAlquilar) {
+                    $this->alquilarSocioProducto($numSocio, $productoAlquilar);
+                }
+                echo "<p>Se han alquilado exitosamente.</p></br>";
+            } catch (SoporteYaAlquiladoException $e) {
+                echo "Error: " . $e->getMessage();
+            } catch (CupoSuperadoException $e) {
+                echo "Error: " . $e->getMessage();
             }
         } else {
-            echo "<p>Al menos uno de los soportes no está disponible";
+            echo "<p>Al menos uno de los soportes no está disponible</p></br>";
         }
     }
 
@@ -198,4 +212,31 @@ class Videoclub
     
 }
 
+// captura de errores try catch
+class SoporteYaAlquiladoException extends Exception {
+    public function __construct($message = "El soporte ya está alquilado.</br>", $code = 0, Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+
+class CupoSuperadoException extends Exception {
+    public function __construct($message = "Se ha alcanzado el cupo máximo de alquileres.</br>", $code = 0, Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+
+class SoporteNoEncontradoException extends Exception {
+    public function __construct($message = "No se encontró el soporte especificado.</br>", $code = 0, Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+
+class ClienteNoEncontradoException extends Exception {
+    public function __construct($message = "No se encontró el cliente especificado.</br>", $code = 0, Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
 ?>
